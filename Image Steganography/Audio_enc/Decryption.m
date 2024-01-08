@@ -1,0 +1,64 @@
+clc;clear all;
+org_img=imread('enc_im_in_img.png');
+red=org_img(:,:,1);
+green=org_img(:,:,2);
+blue=org_img(:,:,3);
+a=[red green blue];
+[m,n]=size(red);
+key=1073218;
+x=1;y=n;
+x1=1;
+p=1;
+count=1;
+exit=0;
+for k=1:3
+    temp=a(1:m,x:y);
+    for i=1:m
+        for j=1:n
+            b=dec2bin(temp(i,j),8);
+            if(b(1:4)=='1')
+                    if(p+3<=8)
+                        b1(count,p:p+3)=b(5:8);
+                        p=p+4;
+                    else
+                        b1(count,p:p+1)=b(5:6);
+                        temp1(1,x1)=bin2dec(b1(count,1:8));
+                        x1=x1+1;
+                        if(x1>key)
+                            exit=1;
+                        end
+                        count=count+1;
+                        p=1;
+                        b1(count,p:p+1)=b(7:8);
+                        p=p+2;
+                    end
+            else
+                b1(count,p:p+1)=b(7:8);
+                p=p+2;
+            end
+            if(p>=8)
+                 temp1(1,x1)=bin2dec(b1(count,1:8));
+                 x1=x1+1;
+                 if(x1>key)
+                     exit=1;
+                 end
+                 count=count+1;
+                 p=1;
+            end
+            if(exit==1)
+               break;
+            end
+        end
+        if(exit==1)
+               break;
+        end
+    end
+        x=x+n;
+        y=y+n;
+        if(exit==1)
+            break;
+        end
+end
+fid2=fopen('Recovered_audio.mp3','w');
+fwrite(fid2,temp1);
+fclose(fid2);
